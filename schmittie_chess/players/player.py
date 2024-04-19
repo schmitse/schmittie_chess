@@ -5,12 +5,6 @@ import chess
 import numpy as np
 
 
-class HumanPlayer:
-    def __init__(self, name: str = 'Schmittie', color: bool = True) -> None:
-        self.name: str = name
-        self.auto = False
-
-
 class BasePlayer:
     """ basic player class for the game """
     def __init__(self, seed: int | None = 1337, color: bool = False) -> None:
@@ -43,6 +37,14 @@ class BasePlayer:
             value = value + val if piece.color else value - val
 
         return value if self.color else -1 * value
+
+
+class HumanPlayer(BasePlayer):
+    def __init__(self, name: str = 'Schmittie', color: bool = True) -> None:
+        super().__init__(seed=1337, color=color)
+        self.name: str = name
+        self.auto = False
+
 
 class TheFish(BasePlayer):
     def __init__(self, seed: int | None = 1337, color: bool = False) -> None:

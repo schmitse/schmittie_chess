@@ -1,3 +1,4 @@
+from typing import TypeVar
 from ..config import const
 from .board import Board
 from ..players.player import HumanPlayer, BasePlayer, TheFish
@@ -9,12 +10,28 @@ import logging
 import time
 
 
+PlayerType = TypeVar('PlayerType', bound=BasePlayer)
+
+
 class Game:
     """
     Game Class which runs the main loop of python chess
     """
-    def __init__(self, folder: str = 'greenchess', verbosity: int = logging.DEBUG, increment: int = 0) -> None:
-        """ initialiser for the Game instance """
+    def __init__(self, player_white: PlayerType | None = None, player_black: PlayerType | None = None, 
+                 folder: str = 'greenchess', verbosity: int = logging.DEBUG, increment: int = 0,
+                 player_white_args: dict | None = None, player_black_args: dict | None = None) -> None:
+        """ initialiser for the Game instance, by default human plays as white against
+        the MiniMax player V0, which is beatable by someone better than schmitse. 
+        Takes: 
+            - player_white: (PlayerType) the player class for the white pieces.
+            - player_black: (PlayerType) the player class for the black pieces. 
+            - folder: (str) the folder from which to import the piece labels,
+                      possible folders are 'greenchess', 'funkey', 'default'.
+            - verbosity: (int) the logger verbosity level
+            - increment: (int) the increment per move in milliseconds
+            - player_white_args: (optional, dict) extra arguments to give to the white player
+            - player_black_args: (optional, dict) extra arguments to give to the black player
+        """
         pygame.init()
         logging.basicConfig(level=verbosity)
         self.logger = logging.getLogger(__name__)
@@ -29,8 +46,12 @@ class Game:
         self.increment: int = increment
         self.timefont: pygame.font.Font = pygame.font.SysFont('computermodern', 80, bold=True)
 
-        # self.players = {False: HumanPlayer(color=False), True: PlayerMiniMax(color=True)} # BasePlayer(color=False)}  # TheFish(color=False)}
-        self.players = {True: HumanPlayer(color=True), False: PlayerMiniMax(color=False)} # BasePlayer(color=False)}  # TheFish(color=False)}
+        player_white = HumanPlayer if player_white is None else player_white
+        player_black = PlayerMiniMax if player_black is None else player_black
+        player_white_args = {} if player_white_args is None else player_white_args
+        player_black_args = {} if player_black_args is None else player_black_args
+        self.players = {True: player_white(color=True, **player_white_args), 
+                        False: player_black(color=False, **player_black_args)}
         return None
     
     def mainloop(self) -> None:
