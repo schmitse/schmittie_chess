@@ -174,6 +174,7 @@ class Game:
         self.logger.info('PGN for played game: ')
         self.logger.info(self.board.pgn())
         self.logger.info('')
+        time.sleep(10)
         return None
 
     def _finalise(self) -> None:

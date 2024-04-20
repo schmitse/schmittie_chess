@@ -1,4 +1,5 @@
 from ..config import const
+from ..utils import gives_check
 from .player import BasePlayer
 from argparse import Namespace
 import numpy as np
@@ -23,17 +24,24 @@ class PlayerMiniMax(BasePlayer):
         self.n_iter = 0
         self.hash_map: dict[str, Namespace] = {} 
         self.move_map: dict = {}
+        self.n_iters: dict = {}
+    
+    def __repr__(self) -> str:
+        return f'PlayerMiniMax(color={self.color})'
 
     def choose_move(self, state: chess.Board, time_left: int, depth: int = 4, *, move_fraction: float = 0.2) -> chess.Move | None:
+        self.n_iter = 0
         if not self.color:
             state = state.mirror()
-            self.logger.warning('Player is black, mirroring board')
+            self.logger.debug('Player is black, mirroring board')
         eval, move = self.minimax(state, True, depth,)
+        self.n_iters[move] = self.n_iter
+        self.logger.info(f'PlayerMiniMax: Used {self.n_iter:.0f} Iterations')
         self.logger.info(f'Finished evaluating position up to depth: {depth}')
         self.logger.info(f'Best move found: {move} with evaluation: {eval:.2f}')
         if not self.color:
             move = _mirror_move(move)
-            self.logger.warning(f'Player is black, mirrored move to: {move}')
+            self.logger.debug(f'Player is black, mirrored move to: {move}')
         return move
     
     def value_function(self, state: chess.Board) -> float:
@@ -81,6 +89,7 @@ class PlayerMiniMax(BasePlayer):
             - beta: (float) the running beta pruning parameter, used for player FALSE
             - move: (chess.Move) the best move propagated through the chain. 
         """
+        self.n_iter += 1
         if not depth or state.is_game_over():
             return _eval(state, player), move
         

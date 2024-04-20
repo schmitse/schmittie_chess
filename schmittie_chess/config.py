@@ -16,7 +16,7 @@ class Const:
     WHITE: bool = True
     BLACK: bool = False
     PIECES: list[int] = field(default_factory=lambda: list(range(1, 7)))
-    VALUE_HASH: dict[int, float] = field(default_factory=lambda: {1: 1, 2: 2.8, 3: 3.1, 4: 5, 5: 9, 6: 100000})
+    VALUE_HASH: dict[int, float] = field(default_factory=lambda: {1: 1, 2: 2.8, 3: 3.1, 4: 5, 5: 9, 6: 20000})
 
     def __post_init__(self):
         self.EDGES = array([self.OFFSET + j * self.SQSIZE for j in range(self.COLS + 1)])
